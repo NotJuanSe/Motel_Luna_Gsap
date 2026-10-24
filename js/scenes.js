@@ -115,17 +115,29 @@
 
   /* ---------------- LOBBY ---------------- */
   const lobby = () => {
-    const keyColors = ["#ff3cac", "#2bd2ff", "#ffcf5c", "#a77bff"];
-    const keys = times(8, (i) => {
-      const kx = 895 + (i % 4) * 55;
-      const ky = 215 + Math.floor(i / 4) * 72;
-      return `<g class="key clickable">
-          <circle cx="${kx}" cy="${ky}" r="3" fill="#ddd"/>
-          <line x1="${kx}" y1="${ky}" x2="${kx}" y2="${ky + 18}" stroke="#ccc" stroke-width="2"/>
-          <rect x="${kx - 9}" y="${ky + 16}" width="18" height="28" rx="5" fill="${keyColors[i % 4]}"/>
-          <text x="${kx}" y="${ky + 35}" text-anchor="middle" font-family="Poppins" font-size="11" font-weight="800" fill="#140c26">${200 + i + 1}</text>
-        </g>`;
-    });
+    // Llavero organizado por piso, con el color de cada piso en el tour
+    const keyRows = [
+      { label: "P2", color: "#2bd2ff", rooms: [201, 202, 203, 204] }, // Sencillas
+      { label: "P3", color: "#ff3cac", rooms: [301, 302] },           // Especial
+      { label: "P4", color: "#a77bff", rooms: [401, 402] },           // Suites
+    ];
+    const keys = keyRows
+      .map((row, r) => {
+        const ky = 202 + r * 52;
+        const label = `<text x="880" y="${ky + 34}" font-family="Poppins" font-size="13" font-weight="800" fill="${row.color}">${row.label}</text>`;
+        return label + row.rooms
+          .map((room, c) => {
+            const kx = 930 + c * 48;
+            return `<g class="key clickable">
+              <circle cx="${kx}" cy="${ky}" r="3" fill="#ddd"/>
+              <line x1="${kx}" y1="${ky}" x2="${kx}" y2="${ky + 14}" stroke="#ccc" stroke-width="2"/>
+              <rect x="${kx - 15}" y="${ky + 13}" width="30" height="30" rx="6" fill="${row.color}"/>
+              <text x="${kx}" y="${ky + 33}" text-anchor="middle" font-family="Poppins" font-size="11" font-weight="800" fill="#140c26">${room}</text>
+            </g>`;
+          })
+          .join("");
+      })
+      .join("");
     const lampAt = (x) => `<g class="lobby-lamp">
         <line x1="${x}" y1="0" x2="${x}" y2="160" stroke="#555" stroke-width="3"/>
         <ellipse cx="${x}" cy="230" rx="130" ry="90" fill="url(#g-lamp)"/>
@@ -138,7 +150,7 @@
       <rect y="520" width="1200" height="180" fill="url(#p-checker)"/>
       <text id="lobby-sign" x="600" y="105" text-anchor="middle" font-family="Monoton" font-size="54" fill="#ff3cac" filter="url(#f-glow)">RECEPCIÓN</text>
       ${lampAt(380)}${lampAt(600)}${lampAt(820)}
-      <rect x="865" y="190" width="240" height="170" rx="8" fill="#3a2a1e" stroke="#5a4330" stroke-width="4"/>
+      <rect x="865" y="186" width="240" height="172" rx="8" fill="#3a2a1e" stroke="#5a4330" stroke-width="4"/>
       ${keys}
       <g class="lobby-plant">
         <path d="M70 470 H150 L140 560 H80Z" fill="#3b2d63"/>
