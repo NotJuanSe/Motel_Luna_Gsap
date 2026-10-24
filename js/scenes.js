@@ -27,12 +27,32 @@
       skyline += `<rect x="${x.toFixed(0)}" y="${(600 - h).toFixed(0)}" width="${rnd(40, 80).toFixed(0)}" height="${h.toFixed(0)}" fill="#160d2e"/>`;
     }
 
+    // Silueta genérica de parca (origen en los pies). Solo se ve cuando la luz del poste la ilumina.
+    const reaper = (x) => `
+      <g transform="translate(${x} 601)">
+        <g class="reaper" opacity="0">
+          <ellipse cx="0" cy="0" rx="22" ry="4" fill="#000" opacity=".45"/>
+          <path d="M17 6 L19 -112" stroke="#1d1530" stroke-width="3.5" stroke-linecap="round"/>
+          <path d="M19 -112 Q-8 -126 -30 -102 Q-6 -114 19 -105Z" fill="#c9d1e6" opacity=".85"/>
+          <path d="M-22 0 C-25 -30 -20 -60 -14 -78 C-12 -93 -6 -101 0 -101 C6 -101 12 -93 14 -78 C19 -60 24 -30 22 0Z" fill="#07040f" stroke="#3a2d5c" stroke-width="1.5"/>
+          <path d="M10 -58 Q16 -62 19 -66" stroke="#07040f" stroke-width="7" stroke-linecap="round" fill="none"/>
+          <ellipse cx="0" cy="-82" rx="7.5" ry="9.5" fill="#000" stroke="#2a1f45" stroke-width="1.5"/>
+          <circle class="reaper-eye" cx="-3" cy="-83" r="1.5" fill="#ff3b3b" filter="url(#f-glow)"/>
+          <circle class="reaper-eye" cx="3" cy="-83" r="1.5" fill="#ff3b3b" filter="url(#f-glow)"/>
+        </g>
+      </g>`;
+
     const lamp = (x, dir) => `
-      <ellipse cx="${x + dir * 30}" cy="600" rx="90" ry="14" fill="url(#g-lamp)"/>
-      <path d="M${x + dir * 30} 428 L${x + dir * 30 - 80} 600 L${x + dir * 30 + 80} 600Z" fill="#ffcf5c" opacity=".07"/>
-      <rect x="${x - 4}" y="420" width="8" height="180" fill="#2b2445"/>
-      <path d="M${x} 422 Q${x + dir * 14} 410 ${x + dir * 30} 420" stroke="#2b2445" stroke-width="6" fill="none"/>
-      <ellipse cx="${x + dir * 30}" cy="424" rx="14" ry="6" fill="#fff1c1" filter="url(#f-glow)"/>`;
+      <g class="lamp clickable">
+        <g class="lamp-light">
+          <ellipse cx="${x + dir * 30}" cy="600" rx="90" ry="14" fill="url(#g-lamp)"/>
+          <path d="M${x + dir * 30} 428 L${x + dir * 30 - 80} 600 L${x + dir * 30 + 80} 600Z" fill="#ffcf5c" opacity=".07"/>
+        </g>
+        ${reaper(x + dir * 48)}
+        <rect x="${x - 4}" y="420" width="8" height="180" fill="#2b2445"/>
+        <path d="M${x} 422 Q${x + dir * 14} 410 ${x + dir * 30} 420" stroke="#2b2445" stroke-width="6" fill="none"/>
+        <ellipse class="lamp-light" cx="${x + dir * 30}" cy="424" rx="14" ry="6" fill="#fff1c1" filter="url(#f-glow)"/>
+      </g>`;
 
     return `
     <g id="facade-world">

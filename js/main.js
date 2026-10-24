@@ -39,6 +39,7 @@ const subBtns = toArray(".sub-btn");
 let subShown = false;
 let parkAnim = null; // timeline del parqueadero (para repetirla desde el submenú)
 let launchUfo = null; // easter egg del platillo volador (también se invoca tocando la luna)
+let hauntLamp = null; // easter egg de la parca bajo los postes (también se invoca tocando un poste)
 
 function toggleSubFloor(on) {
   if (on === subShown) return;
@@ -240,10 +241,43 @@ mm.add(
           }, 0);
       };
 
+      /* ----- Easter egg: el poste falla y aparece la parca ----- */
+      const lamps = toArray("#svg-fachada .lamp");
+      let hauntTl = null;
+      let nextHaunt = performance.now() + random(15000, 20000);
+
+      hauntLamp = (i = Math.round(random(0, lamps.length - 1))) => {
+        if (hauntTl?.isActive()) return;
+        const lamp = lamps[i];
+        const light = toArray(".lamp-light", lamp);
+        const figure = lamp.querySelector(".reaper");
+        const eyes = toArray(".reaper-eye", lamp);
+        gsap.set(light, { opacity: 1 });
+        gsap.set(figure, { opacity: 0 });
+
+        hauntTl = gsap.timeline({ onComplete: () => (nextHaunt = performance.now() + random(30000, 50000)) })
+          // 1. la luz empieza a fallar y se apaga
+          .to(light, { keyframes: { opacity: [1, 0.2, 1, 0.05, 0.85, 0] }, duration: 0.9, ease: "none" })
+          // 2. oscuridad... y al volver la luz, ahí está
+          .set(figure, { opacity: 1 }, "+=0.4")
+          .set(light, { opacity: 1 }, "<")
+          .to(light, { keyframes: { opacity: [1, 0.85, 1, 0.9, 1] }, duration: 2.2, ease: "none" })
+          .fromTo(eyes, { opacity: 0.25 }, { opacity: 1, duration: 0.45, yoyo: true, repeat: 4, ease: "sine.inOut" }, "<")
+          // 3. vuelve a parpadear y la figura desaparece entre los parpadeos
+          .to([...light, figure], { keyframes: { opacity: [0.1, 1, 0, 0.9, 0] }, duration: 0.8, ease: "none" })
+          .set(figure, { opacity: 0 })
+          // 4. el poste se estabiliza como si nada
+          .to(light, { keyframes: { opacity: [0, 0.5, 0.1, 1] }, duration: 0.6, ease: "none" }, "+=0.35");
+      };
+
       // Revisa cada segundo si ya toca otra visita (solo corre mientras se ve la fachada)
       addLoop("f0", gsap.to({}, {
         duration: 1, repeat: -1,
-        onRepeat: () => performance.now() > nextUfo && launchUfo(),
+        onRepeat: () => {
+          const now = performance.now();
+          if (now > nextUfo) launchUfo();
+          if (now > nextHaunt) hauntLamp();
+        },
       }));
 
       gsap.delayedCall(2.2, shootingStar);
@@ -520,6 +554,8 @@ function goTo(n) {
 
 document.addEventListener("click", (e) => {
   if (e.target.closest("#moon")) return launchUfo?.();
+  const lampEl = e.target.closest("#svg-fachada .lamp");
+  if (lampEl) return hauntLamp?.(toArray("#svg-fachada .lamp").indexOf(lampEl));
 
   const area = e.target.closest(".sub-btn");
   if (area) return goArea(+area.dataset.area);
