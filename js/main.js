@@ -333,8 +333,8 @@ mm.add(
       .to(".facade-copy", { autoAlpha: 0, y: -60, duration: 0.5 }, 0)
       // zoom hacia la puerta de entrada
       .to("#facade-world", { scale: 5.5, svgOrigin: "600 560", duration: 2, ease: "power2.in" }, 0.1)
-      .to("#door-l", { x: -42, duration: 0.6 }, 0.9)
-      .to("#door-r", { x: 42, duration: 0.6 }, 0.9)
+      .to("#door-l", { x: -46, duration: 0.6 }, 0.9)
+      .to("#door-r", { x: 46, duration: 0.6 }, 0.9)
       .to("#facade-fade", { autoAlpha: 1, duration: 0.4 }, 1.75);
 
     toggleLoops("f0", true);

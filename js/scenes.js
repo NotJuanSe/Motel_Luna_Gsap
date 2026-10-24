@@ -103,8 +103,12 @@
         <rect x="360" y="508" width="180" height="8" fill="#ff3cac" filter="url(#f-glow)"/>
         <rect x="550" y="505" width="100" height="95" fill="#ffcf5c"/>
         <rect x="550" y="505" width="100" height="95" fill="url(#g-lamp)"/>
-        <rect id="door-l" x="555" y="510" width="45" height="90" fill="#3a2a66" stroke="#ffcf5c" stroke-width="2"/>
-        <rect id="door-r" x="600" y="510" width="45" height="90" fill="#3a2a66" stroke="#ffcf5c" stroke-width="2"/>
+        <!-- Puertas corredizas: se recortan al marco para que al abrir se escondan dentro de la pared -->
+        <clipPath id="door-clip"><rect x="550" y="505" width="100" height="95"/></clipPath>
+        <g clip-path="url(#door-clip)">
+          <rect id="door-l" x="555" y="510" width="45" height="90" fill="#3a2a66" stroke="#ffcf5c" stroke-width="2"/>
+          <rect id="door-r" x="600" y="510" width="45" height="90" fill="#3a2a66" stroke="#ffcf5c" stroke-width="2"/>
+        </g>
         <path d="M535 505 L665 505 L655 488 L545 488Z" fill="#ff3cac"/>
         <rect x="670" y="515" width="165" height="60" rx="4" fill="#ffcf5c" opacity=".85"/>
         <path d="M800 575 q-6 -30 6 -44 q8 20 -6 44 M800 575 q-20 -18 -16 -36 q14 10 16 36" fill="#2f9e6a"/>
