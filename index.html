@@ -73,6 +73,24 @@
         <feGaussianBlur stdDeviation="4" result="b" />
         <feMerge><feMergeNode in="b" /><feMergeNode in="SourceGraphic" /></feMerge>
       </filter>
+      <!-- Neón intenso: el desenfoque se suma dos veces para un halo más fuerte -->
+      <filter id="f-neon" x="-30%" y="-60%" width="160%" height="220%">
+        <feGaussianBlur stdDeviation="6" result="b" />
+        <feMerge><feMergeNode in="b" /><feMergeNode in="b" /><feMergeNode in="SourceGraphic" /></feMerge>
+      </filter>
+      <!-- Ventanas encendidas: brillo suave del color de cada cuarto -->
+      <filter id="f-window" x="-40%" y="-40%" width="180%" height="180%">
+        <feGaussianBlur stdDeviation="7" result="b" />
+        <feMerge><feMergeNode in="b" /><feMergeNode in="SourceGraphic" /></feMerge>
+      </filter>
+      <radialGradient id="g-moonhalo">
+        <stop offset=".45" stop-color="#fff4d6" stop-opacity=".35" />
+        <stop offset="1" stop-color="#fff4d6" stop-opacity="0" />
+      </radialGradient>
+      <radialGradient id="g-bulbhalo">
+        <stop offset="0" stop-color="#fff1c1" stop-opacity=".7" />
+        <stop offset="1" stop-color="#ffcf5c" stop-opacity="0" />
+      </radialGradient>
       <filter id="f-blur" x="-50%" y="-50%" width="200%" height="200%">
         <feGaussianBlur stdDeviation="8" />
       </filter>

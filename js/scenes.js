@@ -14,7 +14,7 @@
       .map((y) =>
         times(5, (i) => {
           const x = 375 + i * 95;
-          return `<rect class="win" x="${x}" y="${y}" width="70" height="60" rx="4" fill="${pick(winColors)}" opacity="${rnd(0.35, 1).toFixed(2)}"/>
+          return `<rect class="win" x="${x}" y="${y}" width="70" height="60" rx="4" fill="${pick(winColors)}" opacity="${rnd(0.35, 1).toFixed(2)}" filter="url(#f-window)"/>
                   <rect x="${x}" y="${y}" width="70" height="60" rx="4" fill="none" stroke="#3b2c63" stroke-width="4"/>
                   <line x1="${x + 35}" y1="${y}" x2="${x + 35}" y2="${y + 60}" stroke="#3b2c63" stroke-width="3"/>`;
         })
@@ -69,7 +69,10 @@
         ${reaper(x + dir * 48)}
         <rect x="${x - 4}" y="420" width="8" height="180" fill="#2b2445"/>
         <path d="M${x} 422 Q${x + dir * 14} 410 ${x + dir * 30} 420" stroke="#2b2445" stroke-width="6" fill="none"/>
-        <ellipse class="lamp-light" cx="${x + dir * 30}" cy="424" rx="14" ry="6" fill="#fff1c1" filter="url(#f-glow)"/>
+        <g class="lamp-light">
+          <circle cx="${x + dir * 30}" cy="426" r="46" fill="url(#g-bulbhalo)"/>
+          <ellipse cx="${x + dir * 30}" cy="424" rx="14" ry="6" fill="#fff1c1" filter="url(#f-neon)"/>
+        </g>
       </g>`;
 
     return `
@@ -96,6 +99,7 @@
         </g>
       </g>
       <g id="moon" class="clickable">
+        <circle cx="1030" cy="110" r="110" fill="url(#g-moonhalo)"/>
         <circle cx="1030" cy="110" r="46" fill="#fff4d6" filter="url(#f-glow)"/>
         <circle cx="1050" cy="96" r="42" fill="#120a2b"/>
       </g>
@@ -127,6 +131,7 @@
         <!-- Letrero vertical 24H -->
         <g id="sign-24">
           <rect x="866" y="200" width="44" height="200" rx="8" fill="#140c26" stroke="#2bd2ff" stroke-width="3"/>
+          <rect x="866" y="200" width="44" height="200" rx="8" fill="none" stroke="#2bd2ff" stroke-width="3" filter="url(#f-neon)"/>
           <text x="888" y="250" text-anchor="middle" font-family="Poppins" font-weight="800" font-size="34" fill="#2bd2ff" filter="url(#f-glow)">2</text>
           <text x="888" y="300" text-anchor="middle" font-family="Poppins" font-weight="800" font-size="34" fill="#2bd2ff" filter="url(#f-glow)">4</text>
           <text x="888" y="350" text-anchor="middle" font-family="Poppins" font-weight="800" font-size="34" fill="#2bd2ff" filter="url(#f-glow)">H</text>
@@ -136,9 +141,10 @@
       <g id="sign" class="clickable">
         <path d="M470 135V150M730 135V150" stroke="#2b1d4f" stroke-width="8"/>
         <rect x="380" y="55" width="440" height="80" rx="14" fill="#140c26" stroke="#ff3cac" stroke-width="4"/>
+        <rect x="380" y="55" width="440" height="80" rx="14" fill="none" stroke="#ff3cac" stroke-width="4" filter="url(#f-neon)"/>
         <!-- Texto oculto solo para medir dónde va cada letra; las letras reales se crean en main.js -->
         <text id="sign-measure" x="600" y="110" text-anchor="middle" font-family="Monoton" font-size="36" visibility="hidden">MOTEL&#160;LUNA</text>
-        <g id="sign-text" filter="url(#f-glow)"></g>
+        <g id="sign-text" filter="url(#f-neon)"></g>
       </g>
 
       ${lamp(200, 1)}
