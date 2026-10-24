@@ -22,7 +22,7 @@
       .join("");
 
     let skyline = "";
-    for (let x = 0; x < 1200; x += rnd(50, 90)) {
+    for (let x = -1400; x < 2600; x += rnd(50, 90)) {
       const h = rnd(60, 220);
       skyline += `<rect x="${x.toFixed(0)}" y="${(600 - h).toFixed(0)}" width="${rnd(40, 80).toFixed(0)}" height="${h.toFixed(0)}" fill="#160d2e"/>`;
     }
@@ -36,8 +36,9 @@
 
     return `
     <g id="facade-world">
-      <rect width="1200" height="700" fill="url(#g-sky)"/>
-      <g id="stars">${times(90, () => `<circle class="star" cx="${rnd(0, 1200).toFixed(0)}" cy="${rnd(0, 460).toFixed(0)}" r="${rnd(0.6, 2.2).toFixed(1)}" fill="#fff"/>`)}</g>
+      <!-- El fondo se extiende más allá del viewBox para llenar pantallas muy anchas o muy altas -->
+      <rect x="-1500" y="-1300" width="4200" height="2000" fill="url(#g-sky)"/>
+      <g id="stars">${times(220, () => `<circle class="star" cx="${rnd(-1400, 2600).toFixed(0)}" cy="${rnd(-600, 460).toFixed(0)}" r="${rnd(0.6, 2.2).toFixed(1)}" fill="#fff"/>`)}</g>
       <circle cx="1030" cy="110" r="46" fill="#fff4d6" filter="url(#f-glow)"/>
       <circle cx="1050" cy="96" r="42" fill="#120a2b"/>
       ${skyline}
@@ -78,9 +79,9 @@
 
       ${lamp(200, 1)}
       ${lamp(1000, -1)}
-      <rect y="600" width="1200" height="20" fill="#2a2240"/>
-      <rect y="620" width="1200" height="80" fill="#120d1f"/>
-      <line x1="0" y1="662" x2="1200" y2="662" stroke="#ffcf5c" stroke-width="4" stroke-dasharray="40 30" opacity=".5"/>
+      <rect x="-1500" y="600" width="4200" height="20" fill="#2a2240"/>
+      <rect x="-1500" y="620" width="4200" height="900" fill="#120d1f"/>
+      <line x1="-1500" y1="662" x2="2700" y2="662" stroke="#ffcf5c" stroke-width="4" stroke-dasharray="40 30" opacity=".5"/>
       <use href="#car" id="street-car" x="0" y="598" width="220" height="90" style="color:#2bd2ff"/>
     </g>`;
   };

@@ -107,10 +107,6 @@ mm.add(
     loops = {};
 
     /* ---------- FACHADA ---------- */
-    const facadeSvg = $("#svg-fachada");
-    if (window.matchMedia("(max-aspect-ratio: 1/1)").matches)
-      facadeSvg.setAttribute("preserveAspectRatio", "xMidYMid meet");
-
     if (!reduce) {
       gsap.timeline({ defaults: { ease: "power3.out" } })
         .from("#building", { y: 120, autoAlpha: 0, duration: 1.4 })
@@ -133,8 +129,8 @@ mm.add(
       addLoop("f0", gsap.timeline({ repeat: -1, repeatDelay: 3 })
         .to("#sign-text", { opacity: 0.3, duration: 0.05, repeat: 3, yoyo: true }));
 
-      addLoop("f0", gsap.fromTo("#street-car", { x: -260 }, {
-        x: 1460, duration: 5, ease: "none", repeat: -1, repeatDelay: 2.5,
+      addLoop("f0", gsap.fromTo("#street-car", { x: -900 }, {
+        x: 2100, duration: 8, ease: "none", repeat: -1, repeatDelay: 2.5,
       }));
     }
 
