@@ -78,7 +78,13 @@
       </filter>
 
       <!-- Carro mirando a la derecha: capó largo adelante (derecha), luces delanteras a la derecha -->
-      <symbol id="car" viewBox="0 0 220 90">
+      <linearGradient id="g-headbeam" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0" stop-color="#fff3a8" stop-opacity=".55" />
+        <stop offset="1" stop-color="#fff3a8" stop-opacity="0" />
+      </linearGradient>
+      <!-- overflow visible: el haz de los faros sale por delante del carro -->
+      <symbol id="car" viewBox="0 0 220 90" overflow="visible">
+        <path d="M210 51 L330 34 L330 72Z" fill="url(#g-headbeam)" filter="url(#f-soft)" />
         <g transform="translate(222 0) scale(-1 1)">
           <path d="M10 60Q10 45 30 42L60 40 85 15Q90 10 100 10H150Q160 10 168 18L190 40Q210 42 212 58V68H10Z" fill="currentColor" />
           <path d="M92 20H150L176 40H72Z" fill="#bff3ff" opacity=".75" />
@@ -86,8 +92,8 @@
           <circle cx="55" cy="68" r="15" fill="#111" stroke="#555" stroke-width="5" />
           <circle cx="170" cy="68" r="15" fill="#111" stroke="#555" stroke-width="5" />
         </g>
-        <rect x="200" y="48" width="12" height="7" rx="2" fill="#fff3a8" />
-        <rect x="10" y="48" width="8" height="7" rx="2" fill="#ff4d6d" />
+        <rect x="200" y="48" width="12" height="7" rx="2" fill="#fff3a8" filter="url(#f-glow)" />
+        <rect x="10" y="48" width="8" height="7" rx="2" fill="#ff4d6d" filter="url(#f-glow)" />
       </symbol>
       <symbol id="moto" viewBox="0 0 120 72">
         <circle cx="25" cy="52" r="16" fill="none" stroke="#111" stroke-width="7" />

@@ -452,8 +452,18 @@ mm.add(
       addLoop("f0", gsap.timeline({ repeat: -1, repeatDelay: 3 })
         .to("#sign-text", { opacity: 0.3, duration: 0.05, repeat: 3, yoyo: true }));
 
-      addLoop("f0", gsap.fromTo("#street-car", { x: -900 }, {
+      // Carro de la calle: cada pasada sale de un color distinto
+      const carColors = ["#2bd2ff", "#ff3cac", "#ffcf5c", "#a77bff", "#7cffb2", "#ff9f43", "#ff4d6d", "#f5efff"];
+      const streetCar = $("#street-car");
+      let lastCarColor = null;
+      const paintCar = () => {
+        lastCarColor = random(carColors.filter((c) => c !== lastCarColor)); // nunca repite la anterior
+        streetCar.style.color = lastCarColor;
+      };
+      paintCar();
+      addLoop("f0", gsap.fromTo(streetCar, { x: -900 }, {
         x: 2100, duration: 8, ease: "none", repeat: -1, repeatDelay: 2.5,
+        onRepeat: paintCar,
       }));
     }
 
