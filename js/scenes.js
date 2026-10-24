@@ -49,7 +49,7 @@
       <!-- Easter egg: platillo volador (origen en el centro del platillo). Va antes del edificio para pasar por detrás -->
       <g id="ufo" opacity="0">
         <g id="ufo-body">
-          <path class="ufo-beam" d="M-10 6 L10 6 L30 80 L-30 80Z" fill="#7cffb2" opacity="0"/>
+          <path class="ufo-beam" d="M-9 5 L9 5 L34 90 L-34 90Z" fill="url(#g-beam)" filter="url(#f-soft)" opacity="0"/>
           <ellipse cx="0" cy="-7" rx="14" ry="12" fill="#9ff0ff" opacity=".85"/>
           <ellipse cx="-4" cy="-11" rx="4" ry="3" fill="#fff" opacity=".7"/>
           <ellipse cx="0" cy="1" rx="34" ry="9" fill="#9aa6c2"/>

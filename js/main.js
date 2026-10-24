@@ -227,7 +227,7 @@ mm.add(
           .to(ufoBody, { keyframes: { rotation: [10, -6, 4, 0] }, duration: 2.2, ease: "none" }, 0)
           .to(ufo, { y: "+=12", duration: 0.55, yoyo: true, repeat: 5, ease: "sine.inOut" }, 0)
           // flota y parpadea el rayo
-          .to(ufoBeam, { opacity: 0.35, duration: 0.12, yoyo: true, repeat: 7, ease: "none" }, 2.2)
+          .to(ufoBeam, { opacity: 0.8, duration: 0.18, yoyo: true, repeat: 5, ease: "sine.inOut" }, 2.2)
           // cruza por detrás del letrero...
           .to(ufo, { x: 560, y: 95, duration: 2.2, ease: "power1.inOut" }, 3.4)
           .to(ufoBody, { rotation: -8, duration: 0.6, yoyo: true, repeat: 1, ease: "sine.inOut" }, 3.4)
