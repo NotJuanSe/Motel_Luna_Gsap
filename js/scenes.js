@@ -31,15 +31,23 @@
     const reaper = (x) => `
       <g transform="translate(${x} 601)">
         <g class="reaper" opacity="0">
-          <ellipse cx="0" cy="0" rx="22" ry="4" fill="#000" opacity=".45"/>
+          <ellipse cx="0" cy="0" rx="22" ry="4" fill="#000" opacity=".35"/>
           <path d="M17 6 L19 -112" stroke="#1d1530" stroke-width="3.5" stroke-linecap="round"/>
           <path d="M19 -112 Q-8 -126 -30 -102 Q-6 -114 19 -105Z" fill="#c9d1e6" opacity=".85"/>
-          <path d="M-22 0 C-25 -30 -20 -60 -14 -78 C-12 -93 -6 -101 0 -101 C6 -101 12 -93 14 -78 C19 -60 24 -30 22 0Z" fill="#07040f" stroke="#3a2d5c" stroke-width="1.5"/>
-          <path d="M10 -58 Q16 -62 19 -66" stroke="#07040f" stroke-width="7" stroke-linecap="round" fill="none"/>
-          <ellipse cx="0" cy="-82" rx="7.5" ry="9.5" fill="#000" stroke="#2a1f45" stroke-width="1.5"/>
+          <!-- Túnica: degradado que se desvanece abajo, borde rasgado, pliegues y bordes suaves -->
+          <g filter="url(#f-robe)">
+            <path d="M-23 -2 C-26 -32 -20 -60 -14 -78 C-12 -93 -6 -101 0 -101 C6 -101 12 -93 14 -78 C19 -60 25 -32 23 -2
+                     L18 -9 L14 1 L9 -7 L4 2 L-1 -8 L-6 1 L-11 -7 L-16 2Z" fill="url(#g-robe)"/>
+            <path d="M-6 -72 Q-11 -38 -13 -6 M5 -72 Q9 -40 12 -6 M0 -66 Q-1 -36 1 -4" stroke="#2a1f45" stroke-width="1.2" fill="none" opacity=".7"/>
+            <path d="M10 -58 Q16 -62 19 -66" stroke="#0a0614" stroke-width="7" stroke-linecap="round" fill="none"/>
+            <path d="M-14 -78 C-12 -93 -6 -101 0 -101 C6 -101 12 -93 14 -78" stroke="#3a2d5c" stroke-width="1.4" fill="none" opacity=".8"/>
+          </g>
+          <ellipse cx="0" cy="-82" rx="7.5" ry="9.5" fill="#000"/>
           <circle class="reaper-eye" cx="-3" cy="-83" r="1.5" fill="#ff3b3b" filter="url(#f-glow)"/>
           <circle class="reaper-eye" cx="3" cy="-83" r="1.5" fill="#ff3b3b" filter="url(#f-glow)"/>
         </g>
+        <!-- Humo tipo hielo seco a ras del piso (aparece con la figura y se queda un rato al irse) -->
+        <g class="fog" filter="url(#f-fog)">${times(14, () => `<circle class="fog-puff" cx="${rnd(-34, 34).toFixed(0)}" cy="${rnd(-14, -3).toFixed(0)}" r="${rnd(12, 22).toFixed(0)}" fill="${pick(["#d9d6e6", "#c4c0d4", "#ece9f5"])}" opacity="0"/>`)}</g>
       </g>`;
 
     const lamp = (x, dir) => `

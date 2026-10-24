@@ -253,22 +253,44 @@ mm.add(
         const light = toArray(".lamp-light", lamp);
         const figure = lamp.querySelector(".reaper");
         const eyes = toArray(".reaper-eye", lamp);
+        const puffs = toArray(".fog-puff", lamp);
+        const puffX = (el) => +el.getAttribute("cx"); // hacia qué lado se abre cada bocanada
         gsap.set(light, { opacity: 1 });
         gsap.set(figure, { opacity: 0 });
+        gsap.set(puffs, { opacity: 0 });
 
         hauntTl = gsap.timeline({ onComplete: () => (nextHaunt = performance.now() + random(30000, 50000)) })
           // 1. la luz empieza a fallar y se apaga
           .to(light, { keyframes: { opacity: [1, 0.2, 1, 0.05, 0.85, 0] }, duration: 0.9, ease: "none" })
-          // 2. oscuridad... y al volver la luz, ahí está
-          .set(figure, { opacity: 1 }, "+=0.4")
+          .addLabel("dark")
+          // humo de hielo seco: brota en la oscuridad y se extiende a ras del piso
+          .fromTo(puffs, { opacity: 0, scale: 0.4, x: 0, y: 0, transformOrigin: "50% 50%" }, {
+            opacity: () => random(0.35, 0.65),
+            scale: () => random(1.1, 1.7),
+            x: (i, el) => puffX(el) * 0.7,
+            y: () => random(-10, -2),
+            duration: 2.6, ease: "sine.out", stagger: { each: 0.04, from: "center" },
+          }, "dark")
+          // 2. al volver la luz, ahí está, saliendo del humo
+          .set(figure, { opacity: 1 }, "dark+=0.4")
           .set(light, { opacity: 1 }, "<")
-          .to(light, { keyframes: { opacity: [1, 0.85, 1, 0.9, 1] }, duration: 2.2, ease: "none" })
+          .fromTo(figure, { y: 10 }, { y: 0, duration: 2.2, ease: "sine.out" }, "<")
+          .to(light, { keyframes: { opacity: [1, 0.85, 1, 0.9, 1] }, duration: 2.2, ease: "none" }, "<")
           .fromTo(eyes, { opacity: 0.25 }, { opacity: 1, duration: 0.45, yoyo: true, repeat: 4, ease: "sine.inOut" }, "<")
           // 3. vuelve a parpadear y la figura desaparece entre los parpadeos
           .to([...light, figure], { keyframes: { opacity: [0.1, 1, 0, 0.9, 0] }, duration: 0.8, ease: "none" })
           .set(figure, { opacity: 0 })
+          .addLabel("gone")
+          // el humo se queda un momento y se disipa despacio
+          .to(puffs, {
+            opacity: 0,
+            x: (i, el) => puffX(el) * 1.6,
+            y: "-=8",
+            scale: "+=0.4",
+            duration: 2.6, ease: "sine.in", stagger: { each: 0.03, from: "random" },
+          }, "gone")
           // 4. el poste se estabiliza como si nada
-          .to(light, { keyframes: { opacity: [0, 0.5, 0.1, 1] }, duration: 0.6, ease: "none" }, "+=0.35");
+          .to(light, { keyframes: { opacity: [0, 0.5, 0.1, 1] }, duration: 0.6, ease: "none" }, "gone+=0.35");
       };
 
       // Revisa cada segundo si ya toca otra visita (solo corre mientras se ve la fachada)
