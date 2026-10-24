@@ -244,33 +244,48 @@ mm.add(
 
       /* ----- Easter egg: el poste falla y aparece la parca ----- */
       const lamps = toArray("#svg-fachada .lamp");
-      let hauntTl = null;
+      const hauntTls = []; // una secuencia por poste
+      let duoTl = null;
       let nextHaunt = performance.now() + random(15000, 20000);
 
+      // Bocanadas de humo de hielo seco (compartido por la parca normal y el combo)
+      const puffX = (el) => +el.getAttribute("cx"); // hacia qué lado se abre cada bocanada
+      const fogIn = (puffs) => gsap.fromTo(puffs, { opacity: 0, scale: 0.4, x: 0, y: 0, transformOrigin: "50% 50%" }, {
+        opacity: () => random(0.35, 0.65),
+        scale: () => random(1.1, 1.7),
+        x: (i, el) => puffX(el) * 0.7,
+        y: () => random(-10, -2),
+        duration: 2.6, ease: "sine.out", stagger: { each: 0.04, from: "center" },
+      });
+      const fogOut = (puffs) => gsap.to(puffs, {
+        opacity: 0,
+        x: (i, el) => puffX(el) * 1.6,
+        y: "-=8",
+        scale: "+=0.4",
+        duration: 2.6, ease: "sine.in", stagger: { each: 0.03, from: "random" },
+      });
+
       hauntLamp = (i = Math.round(random(0, lamps.length - 1))) => {
-        if (hauntTl?.isActive()) return;
+        if (duoTl?.isActive()) return;
+        // Easter egg secundario: si la parca del otro poste sigue ahí, se encuentran
+        const other = hauntTls[1 - i];
+        if (other?.isActive() && !hauntTls[i]?.isActive()) return runDuo();
+        if (hauntTls[i]?.isActive()) return;
         const lamp = lamps[i];
         const light = toArray(".lamp-light", lamp);
         const figure = lamp.querySelector(".reaper");
         const eyes = toArray(".reaper-eye", lamp);
         const puffs = toArray(".fog-puff", lamp);
-        const puffX = (el) => +el.getAttribute("cx"); // hacia qué lado se abre cada bocanada
         gsap.set(light, { opacity: 1 });
         gsap.set(figure, { opacity: 0 });
         gsap.set(puffs, { opacity: 0 });
 
-        hauntTl = gsap.timeline({ onComplete: () => (nextHaunt = performance.now() + random(30000, 50000)) })
+        hauntTls[i] = gsap.timeline({ onComplete: () => (nextHaunt = performance.now() + random(30000, 50000)) })
           // 1. la luz empieza a fallar y se apaga
           .to(light, { keyframes: { opacity: [1, 0.2, 1, 0.05, 0.85, 0] }, duration: 0.9, ease: "none" })
           .addLabel("dark")
           // humo de hielo seco: brota en la oscuridad y se extiende a ras del piso
-          .fromTo(puffs, { opacity: 0, scale: 0.4, x: 0, y: 0, transformOrigin: "50% 50%" }, {
-            opacity: () => random(0.35, 0.65),
-            scale: () => random(1.1, 1.7),
-            x: (i, el) => puffX(el) * 0.7,
-            y: () => random(-10, -2),
-            duration: 2.6, ease: "sine.out", stagger: { each: 0.04, from: "center" },
-          }, "dark")
+          .add(fogIn(puffs), "dark")
           // 2. al volver la luz, ahí está, saliendo del humo
           .set(figure, { opacity: 1 }, "dark+=0.4")
           .set(light, { opacity: 1 }, "<")
@@ -282,15 +297,111 @@ mm.add(
           .set(figure, { opacity: 0 })
           .addLabel("gone")
           // el humo se queda un momento y se disipa despacio
-          .to(puffs, {
-            opacity: 0,
-            x: (i, el) => puffX(el) * 1.6,
-            y: "-=8",
-            scale: "+=0.4",
-            duration: 2.6, ease: "sine.in", stagger: { each: 0.03, from: "random" },
-          }, "gone")
+          .add(fogOut(puffs), "gone")
           // 4. el poste se estabiliza como si nada
           .to(light, { keyframes: { opacity: [0, 0.5, 0.1, 1] }, duration: 0.6, ease: "none" }, "gone+=0.35");
+      };
+
+      /* ----- Easter egg secundario: la Muerte le teme a la Muerte ----- */
+      const runDuo = () => {
+        hauntTls.forEach((t) => t?.kill());
+        const parts = lamps.map((lamp, i) => ({
+          lamp,
+          light: toArray(".lamp-light", lamp),
+          fig: lamp.querySelector(".reaper"),
+          eyes: toArray(".reaper-eye", lamp),
+          puffs: toArray(".fog-puff", lamp),
+          scythe: lamp.querySelector(".scythe"),
+          armHold: lamp.querySelector(".arm-hold"),
+          armsUp: lamp.querySelector(".arms-up"),
+          alarm: lamp.querySelector(".alarm"),
+          sweat: toArray(".sweat", lamp),
+          dir: i === 0 ? -1 : 1, // la de la izquierda huye a la izquierda y viceversa
+        }));
+        const all = (key) => parts.flatMap((p) => p[key]);
+        const dropper = Math.round(random(0, 1)); // la que tira la guadaña del susto
+        const RUN = 680;
+
+        const reset = () => parts.forEach((p) => {
+          gsap.set(p.fig, { opacity: 0, x: 0, y: 0, rotation: 0, transformOrigin: "50% 100%" });
+          // origen en el centro del bastón (18,-53); la caja de la guadaña empieza en (-30,-117)
+          gsap.set(p.scythe, { rotation: 0, x: 0, y: 0, opacity: 1, transformOrigin: "48px 64px" });
+          gsap.set(p.armsUp, { opacity: 0 });
+          gsap.set(p.armHold, { opacity: 1 });
+          gsap.set(p.eyes, { x: 0, scale: 1, opacity: 1, transformOrigin: "50% 50%" });
+          gsap.set([p.alarm, ...p.sweat], { opacity: 0 });
+          p.lamp.querySelectorAll(".scythe-dropped").forEach((n) => n.remove());
+        });
+        reset();
+        gsap.set(all("light"), { opacity: 1 });
+        gsap.set(all("puffs"), { opacity: 0 });
+
+        const figs = parts.map((p) => p.fig);
+        duoTl = gsap.timeline({
+          onComplete: () => {
+            reset();
+            nextHaunt = performance.now() + random(30000, 50000);
+          },
+        })
+          // 1. fallan los dos postes y aparecen las dos entre el humo
+          .to(all("light"), { keyframes: { opacity: [1, 0.2, 1, 0.05, 0] }, duration: 0.7, ease: "none" })
+          .addLabel("dark")
+          .add(fogIn(all("puffs")), "dark")
+          .set(figs, { opacity: 1 }, "dark+=0.4")
+          .set(all("light"), { opacity: 1 }, "<")
+          .fromTo(figs, { y: 10 }, { y: 0, duration: 1, ease: "sine.out" }, "<")
+          // 2. se miran...
+          // (posiciones fijas desde "dark": el humo dura más y no debe empujar la escena)
+          .to(parts[0].eyes, { x: 2.5, duration: 0.25 }, "dark+=1.9")
+          .to(parts[1].eyes, { x: -2.5, duration: 0.25 }, "<")
+          // 3. ¡SUSTO!
+          .addLabel("scare", "dark+=2.65")
+          .fromTo(all("alarm"), { opacity: 0, scale: 0, transformOrigin: "50% 100%" },
+            { opacity: 1, scale: 1, duration: 0.25, ease: "back.out(3)" }, "scare")
+          .to(all("eyes"), { scale: 1.8, duration: 0.15 }, "scare")
+          .to(figs, { y: -14, duration: 0.15, yoyo: true, repeat: 1, ease: "power2.out" }, "scare")
+          // 4. ¡manos arriba!
+          .set(all("armHold"), { opacity: 0 }, "scare+=0.15")
+          .set(all("armsUp"), { opacity: 1 }, "scare+=0.15")
+          .to(all("alarm"), { opacity: 0, duration: 0.2 }, "scare+=0.9")
+          .addLabel("run", "scare+=0.7");
+
+        parts.forEach((p, i) => {
+          if (i === dropper) {
+            // tira la guadaña: cae al piso y ahí se queda (se copia fuera de la figura para que no corra con ella)
+            duoTl
+              .to(p.scythe, { rotation: 95, y: 48, duration: 0.45, ease: "bounce.out" }, "scare+=0.2")
+              .call(() => {
+                const dropped = p.scythe.cloneNode(true);
+                dropped.classList.replace("scythe", "scythe-dropped");
+                p.fig.parentNode.insertBefore(dropped, p.fig);
+                gsap.set(p.scythe, { opacity: 0 });
+                gsap.to(dropped, { opacity: 0, duration: 0.8, delay: 2.2, onComplete: () => dropped.remove() });
+              }, null, "scare+=0.68");
+          } else {
+            // la otra la agarra sobre la cabeza
+            duoTl.to(p.scythe, { rotation: -90, x: -18, y: -65, duration: 0.25, ease: "power2.out" }, "scare+=0.15");
+          }
+
+          // 5. ¡a correr! cada una hacia su lado, inclinada, a saltitos y sudando
+          duoTl
+            .to(p.fig, { x: p.dir * RUN, duration: 1.6, ease: "power1.in" }, "run")
+            .to(p.fig, { rotation: p.dir * 12, duration: 0.25 }, "run")
+            .to(p.fig, { y: -10, duration: 0.12, yoyo: true, repeat: 13, ease: "sine.out" }, "run")
+            .fromTo(p.sweat, { x: 0, y: 0, opacity: 1 }, {
+              immediateRender: false, // si no, las gotas se verían desde el principio
+              x: () => -p.dir * random(14, 28),
+              y: () => random(10, 24),
+              opacity: 0,
+              duration: 0.45, ease: "power1.out",
+              stagger: { each: 0.15, repeat: 3 },
+            }, "run");
+        });
+
+        // 6. el humo se disipa y los postes vuelven a la normalidad
+        duoTl
+          .add(fogOut(all("puffs")), "run+=0.4")
+          .to(all("light"), { keyframes: { opacity: [1, 0.4, 1] }, duration: 0.4, ease: "none" }, "run+=1.7");
       };
 
       // Revisa cada segundo si ya toca otra visita (solo corre mientras se ve la fachada)

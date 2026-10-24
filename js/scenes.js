@@ -32,19 +32,29 @@
       <g transform="translate(${x} 601)">
         <g class="reaper" opacity="0">
           <ellipse cx="0" cy="0" rx="22" ry="4" fill="#000" opacity=".35"/>
-          <path d="M17 6 L19 -112" stroke="#1d1530" stroke-width="3.5" stroke-linecap="round"/>
-          <path d="M19 -112 Q-8 -126 -30 -102 Q-6 -114 19 -105Z" fill="#c9d1e6" opacity=".85"/>
+          <g class="scythe">
+            <path d="M17 6 L19 -112" stroke="#1d1530" stroke-width="3.5" stroke-linecap="round"/>
+            <path d="M19 -112 Q-8 -126 -30 -102 Q-6 -114 19 -105Z" fill="#c9d1e6" opacity=".85"/>
+          </g>
           <!-- Túnica: degradado que se desvanece abajo, borde rasgado, pliegues y bordes suaves -->
           <g filter="url(#f-robe)">
             <path d="M-23 -2 C-26 -32 -20 -60 -14 -78 C-12 -93 -6 -101 0 -101 C6 -101 12 -93 14 -78 C19 -60 25 -32 23 -2
                      L18 -9 L14 1 L9 -7 L4 2 L-1 -8 L-6 1 L-11 -7 L-16 2Z" fill="url(#g-robe)"/>
             <path d="M-6 -72 Q-11 -38 -13 -6 M5 -72 Q9 -40 12 -6 M0 -66 Q-1 -36 1 -4" stroke="#2a1f45" stroke-width="1.2" fill="none" opacity=".7"/>
-            <path d="M10 -58 Q16 -62 19 -66" stroke="#0a0614" stroke-width="7" stroke-linecap="round" fill="none"/>
+            <path class="arm-hold" d="M10 -58 Q16 -62 19 -66" stroke="#0a0614" stroke-width="7" stroke-linecap="round" fill="none"/>
             <path d="M-14 -78 C-12 -93 -6 -101 0 -101 C6 -101 12 -93 14 -78" stroke="#3a2d5c" stroke-width="1.4" fill="none" opacity=".8"/>
           </g>
           <ellipse cx="0" cy="-82" rx="7.5" ry="9.5" fill="#000"/>
           <circle class="reaper-eye" cx="-3" cy="-83" r="1.5" fill="#ff3b3b" filter="url(#f-glow)"/>
           <circle class="reaper-eye" cx="3" cy="-83" r="1.5" fill="#ff3b3b" filter="url(#f-glow)"/>
+          <!-- Solo para el easter egg doble: brazos arriba, "!" y gotas de sudor -->
+          <g class="arms-up" opacity="0">
+            <path d="M-11 -72 Q-19 -90 -20 -110 M11 -72 Q19 -90 20 -110" stroke="#0a0614" stroke-width="6" stroke-linecap="round" fill="none"/>
+            <circle cx="-20" cy="-112" r="2.6" fill="#c9d1e6"/>
+            <circle cx="20" cy="-112" r="2.6" fill="#c9d1e6"/>
+          </g>
+          <text class="alarm" x="0" y="-132" text-anchor="middle" font-family="Poppins" font-weight="800" font-size="22" fill="#ffcf5c" opacity="0">!</text>
+          ${[[-12, -98], [12, -96], [8, -105]].map(([x, y]) => `<g transform="translate(${x} ${y})"><path class="sweat" d="M0 -4 Q3 0 0 3 Q-3 0 0 -4Z" fill="#9fe7ff" opacity="0"/></g>`).join("")}
         </g>
         <!-- Humo tipo hielo seco a ras del piso (aparece con la figura y se queda un rato al irse) -->
         <g class="fog" filter="url(#f-fog)">${times(14, () => `<circle class="fog-puff" cx="${rnd(-34, 34).toFixed(0)}" cy="${rnd(-14, -3).toFixed(0)}" r="${rnd(12, 22).toFixed(0)}" fill="${pick(["#d9d6e6", "#c4c0d4", "#ece9f5"])}" opacity="0"/>`)}</g>
