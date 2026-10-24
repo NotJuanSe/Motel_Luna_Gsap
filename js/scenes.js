@@ -111,10 +111,12 @@
         </g>
       </g>
 
-      <g id="sign">
+      <g id="sign" class="clickable">
         <path d="M470 135V150M730 135V150" stroke="#2b1d4f" stroke-width="8"/>
         <rect x="380" y="55" width="440" height="80" rx="14" fill="#140c26" stroke="#ff3cac" stroke-width="4"/>
-        <text id="sign-text" x="600" y="110" text-anchor="middle" font-family="Monoton" font-size="36" fill="#ff3cac" filter="url(#f-glow)">MOTEL&#160;LUNA</text>
+        <!-- Texto oculto solo para medir dónde va cada letra; las letras reales se crean en main.js -->
+        <text id="sign-measure" x="600" y="110" text-anchor="middle" font-family="Monoton" font-size="36" visibility="hidden">MOTEL&#160;LUNA</text>
+        <g id="sign-text" filter="url(#f-glow)"></g>
       </g>
 
       ${lamp(200, 1)}

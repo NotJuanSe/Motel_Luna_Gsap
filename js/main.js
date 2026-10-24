@@ -4,6 +4,7 @@
    ========================================================= */
 gsap.registerPlugin(ScrollTrigger);
 Scenes.render();
+buildSignLetters();
 
 const { toArray, random, clamp } = gsap.utils;
 const $ = (s, scope = document) => scope.querySelector(s);
@@ -554,6 +555,7 @@ function goTo(n) {
 
 document.addEventListener("click", (e) => {
   if (e.target.closest("#moon")) return launchUfo?.();
+  if (e.target.closest("#sign")) return loosenSign();
   const lampEl = e.target.closest("#svg-fachada .lamp");
   if (lampEl) return hauntLamp?.(toArray("#svg-fachada .lamp").indexOf(lampEl));
 
@@ -706,5 +708,82 @@ holdBtn.addEventListener("keyup", (e) => {
 });
 holdBtn.addEventListener("blur", () => setHolding(false));
 
+/* =========================================================
+   Easter egg: letras del letrero que se aflojan y quedan colgando
+   ========================================================= */
+// Crea una <text> por letra en la posición exacta que tendría dentro del texto completo
+function buildSignLetters() {
+  const measure = document.getElementById("sign-measure");
+  const group = document.getElementById("sign-text");
+  if (!measure || !group) return;
+  group.innerHTML = "";
+  [...measure.textContent].forEach((ch, i) => {
+    if (!ch.trim()) return; // espacio
+    const pos = measure.getStartPositionOfChar(i);
+    const t = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    t.setAttribute("class", "sign-letter");
+    t.setAttribute("x", pos.x);
+    t.setAttribute("y", pos.y);
+    t.setAttribute("font-family", "Monoton");
+    t.setAttribute("font-size", "36");
+    t.setAttribute("fill", "#ff3cac");
+    t.textContent = ch;
+    group.appendChild(t);
+  });
+  // gira sobre su "tornillo" inferior, en la línea base de la letra (no en el borde de la
+  // caja del texto, que en esta tipografía queda muy abajo). Se fija una sola vez, con la letra derecha.
+  [...group.children].forEach((t) => {
+    const bb = t.getBBox();
+    const baseline = ((+t.getAttribute("y") - bb.y) / bb.height) * 100;
+    gsap.set(t, { transformOrigin: `50% ${baseline}%` });
+  });
+}
+
+function dropScrew(letter) {
+  const bb = letter.getBBox();
+  const screw = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+  const cx = bb.x + bb.width / 2;
+  const cy = bb.y + 6;
+  screw.setAttribute("cx", cx);
+  screw.setAttribute("cy", cy);
+  screw.setAttribute("r", "2.2");
+  screw.setAttribute("fill", "#c9d1e6");
+  letter.parentNode.parentNode.appendChild(screw); // dentro de #sign
+  gsap.timeline({ onComplete: () => screw.remove() })
+    .to(screw, { y: 600 - cy, x: random(-25, 25), duration: 1, ease: "bounce.out" })
+    .to(screw, { opacity: 0, duration: 0.4 }, "+=0.6");
+}
+
+function loosenSign() {
+  const letters = toArray("#sign-text .sign-letter");
+  const fixed = letters.filter((l) => !l.dataset.hanging);
+
+  // Si ya se cayeron todas, el siguiente toque las arregla
+  if (!fixed.length) {
+    letters.forEach((l) => delete l.dataset.hanging);
+    gsap.to(letters, { rotation: 0, opacity: 1, duration: 0.8, ease: "back.out(2)", stagger: 0.05, overwrite: true });
+    return;
+  }
+
+  const count = Math.min(fixed.length, Math.random() < 0.35 ? 2 : 1);
+  gsap.utils.shuffle(fixed).slice(0, count).forEach((letter, k) => {
+    letter.dataset.hanging = "1";
+    const dir = random([1, -1]); // hacia qué lado se voltea
+    gsap.timeline({ delay: k * 0.3 })
+      // se afloja: tiembla
+      .to(letter, { rotation: dir * 10, duration: 0.07, yoyo: true, repeat: 5, ease: "none" })
+      .call(() => dropScrew(letter))
+      // cae girando sobre el tornillo de abajo y queda de cabeza
+      .to(letter, { rotation: dir * 180, duration: 1.2, ease: "bounce.out" })
+      // mal contacto: el neón parpadea
+      .to(letter, { opacity: 0.3, duration: 0.06, yoyo: true, repeat: 7, ease: "none" }, "<0.2")
+      // se queda meciéndose
+      .to(letter, { rotation: dir * 172, duration: 0.9, yoyo: true, repeat: 3, ease: "sine.inOut" });
+  });
+}
+
 /* Recalcular cuando carguen las fuentes (cambian medidas del texto) */
-document.fonts?.ready.then(() => ScrollTrigger.refresh());
+document.fonts?.ready.then(() => {
+  buildSignLetters(); // re-mide las letras con la tipografía neón ya cargada
+  ScrollTrigger.refresh();
+});
