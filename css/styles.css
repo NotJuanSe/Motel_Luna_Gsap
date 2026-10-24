@@ -124,6 +124,37 @@ button { font: inherit; color: inherit; cursor: pointer; }
 .dock { display: contents; }
 .tour-btn.speed-cycle { display: none; }
 
+/* ---------- Submenú del piso 1 ---------- */
+.sub-floor {
+  position: absolute;
+  right: calc(100% + 10px);
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+  visibility: hidden;
+}
+.sub-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  border-radius: 99px;
+  border: 1px solid rgba(255, 207, 92, .4);
+  background: rgba(20, 14, 38, .92);
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, .45);
+  transition: background-color .2s, color .2s, border-color .2s;
+}
+.sub-btn .e { font-size: 15px; }
+.sub-btn:hover { border-color: var(--gold); }
+.sub-btn.is-on { background: var(--gold); color: var(--bg); border-color: transparent; }
+.sub-btn:focus-visible { outline: 2px solid var(--cyan); outline-offset: 2px; }
+
 /* ---------- Controles del tour ---------- */
 .tour-bar {
   position: fixed;
@@ -548,6 +579,18 @@ svg .clickable { cursor: pointer; }
     padding-left: 6px;
     border-left: 1px solid rgba(255, 255, 255, .15);
   }
+  /* submenú del piso 1: encima del dock, en fila */
+  .sub-floor {
+    right: auto;
+    left: 50%;
+    top: auto;
+    bottom: calc(100% + 8px);
+    transform: translateX(-50%);
+    flex-direction: row;
+  }
+  .sub-btn { padding: 7px 11px; font-size: 12px; gap: 5px; }
+  .sub-btn .long { display: none; }
+
   .lift-display, .tour-speed, .tour-btn .txt { display: none; }
   .tour-btn.speed-cycle { display: flex; }
   .tour-btn {

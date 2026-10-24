@@ -30,6 +30,58 @@ function setFloor(n) {
   current = n;
   liftNum.textContent = label(n);
   liftBtns.forEach((b) => b.classList.toggle("is-active", +b.dataset.go === n));
+  toggleSubFloor(n === 1);
+}
+
+/* ---------- Submenú temporal del piso 1 (parqueadero · lobby · sala) ---------- */
+const subFloor = $(".sub-floor");
+const subBtns = toArray(".sub-btn");
+let subShown = false;
+let parkAnim = null; // timeline del parqueadero (para repetirla desde el submenú)
+
+function toggleSubFloor(on) {
+  if (on === subShown) return;
+  subShown = on;
+  gsap.killTweensOf([subFloor, ...subBtns]);
+  if (on) {
+    gsap.set(subFloor, { autoAlpha: 1 });
+    gsap.fromTo(subBtns, { autoAlpha: 0, scale: 0.6 }, {
+      autoAlpha: 1, scale: 1, duration: 0.35, ease: "back.out(2)", stagger: 0.06,
+    });
+  } else {
+    gsap.to(subBtns, {
+      autoAlpha: 0, scale: 0.6, duration: 0.2, stagger: { each: 0.04, from: "end" },
+      onComplete: () => gsap.set(subFloor, { autoAlpha: 0 }),
+    });
+  }
+}
+
+// Resalta el área que se está viendo según el avance del scroll horizontal
+function setArea(i) {
+  subBtns.forEach((b, j) => b.classList.toggle("is-on", i === j));
+}
+
+// Scroll suave hasta un área: el track horizontal avanza lineal (ease "none"),
+// así que el panel i está en progress = i / (paneles - 1)
+function goArea(i) {
+  const st = ScrollTrigger.getById("sec-1");
+  if (!st || busy) return;
+  const last = subBtns.length - 1;
+  const target = clamp(st.start + 2, st.end - 2, st.start + (st.end - st.start) * (i / last));
+  const proxy = { y: window.scrollY };
+  busy = true; // pausa el auto tour mientras se desplaza
+  gsap.to(proxy, {
+    y: target,
+    duration: clamp(0.6, 1.6, Math.abs(target - proxy.y) / 1500),
+    ease: "power2.inOut",
+    onUpdate: () => window.scrollTo(0, proxy.y),
+    onComplete: () => {
+      busy = false;
+      tour.pos = window.scrollY;
+      // Parqueadero: los carros y motos vuelven a entrar
+      if (i === 0) parkAnim?.restart();
+    },
+  });
 }
 
 /* ---------- Loops ambientales: solo corren en la sección activa ---------- */
@@ -175,6 +227,7 @@ mm.add(
           toggleLoops("f1", self.isActive);
           if (self.isActive) setFloor(1);
         },
+        onUpdate: (self) => setArea(Math.round(self.progress * (subBtns.length - 1))),
       },
     });
 
@@ -187,9 +240,9 @@ mm.add(
     gsap.set(curtains, { scaleY: 0, transformOrigin: "50% 0%" });
     gsap.set([...cars, ...motos], { x: -300 });
 
-    const parkTl = gsap.timeline({
+    const parkTl = (parkAnim = gsap.timeline({
       scrollTrigger: { trigger: "#piso1", start: "top 60%", toggleActions: "play none none reverse" },
-    });
+    }));
     cars.forEach((car, i) => {
       const t = i * 0.55;
       parkTl
@@ -392,6 +445,9 @@ function goTo(n) {
 }
 
 document.addEventListener("click", (e) => {
+  const area = e.target.closest(".sub-btn");
+  if (area) return goArea(+area.dataset.area);
+
   const go = e.target.closest("[data-go]");
   if (go) return goTo(+go.dataset.go);
 
