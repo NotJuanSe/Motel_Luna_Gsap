@@ -246,6 +246,7 @@ mm.add(
       const lamps = toArray("#svg-fachada .lamp");
       const hauntTls = []; // una secuencia por poste
       let duoTl = null;
+      let pendingDuo = null; // poste tocado mientras la otra parca todavía estaba saliendo
       let nextHaunt = performance.now() + random(15000, 20000);
 
       // Bocanadas de humo de hielo seco (compartido por la parca normal y el combo)
@@ -267,9 +268,15 @@ mm.add(
 
       hauntLamp = (i = Math.round(random(0, lamps.length - 1))) => {
         if (duoTl?.isActive()) return;
-        // Easter egg secundario: si la parca del otro poste sigue ahí, se encuentran
+        if (pendingDuo !== null) return; // ya hay un combo en cola
+        // Easter egg secundario: si la parca del otro poste está en escena, se encuentran
         const other = hauntTls[1 - i];
-        if (other?.isActive() && !hauntTls[i]?.isActive()) return runDuo();
+        if (other?.isActive() && !hauntTls[i]?.isActive()) {
+          const t = other.time();
+          if (t < other.labels.appear) { pendingDuo = i; return; } // todavía está saliendo: en cola
+          if (t < other.labels.leave) return runDuo(i);            // ya está a la vista: ¡ahora!
+          // si ya se está desvaneciendo, este poste tiene su parca normal
+        }
         if (hauntTls[i]?.isActive()) return;
         const lamp = lamps[i];
         const light = toArray(".lamp-light", lamp);
@@ -287,12 +294,18 @@ mm.add(
           // humo de hielo seco: brota en la oscuridad y se extiende a ras del piso
           .add(fogIn(puffs), "dark")
           // 2. al volver la luz, ahí está, saliendo del humo
-          .set(figure, { opacity: 1 }, "dark+=0.4")
+          .addLabel("appear", "dark+=0.4")
+          .set(figure, { opacity: 1 }, "appear")
           .set(light, { opacity: 1 }, "<")
           .fromTo(figure, { y: 10 }, { y: 0, duration: 2.2, ease: "sine.out" }, "<")
           .to(light, { keyframes: { opacity: [1, 0.85, 1, 0.9, 1] }, duration: 2.2, ease: "none" }, "<")
           .fromTo(eyes, { opacity: 0.25 }, { opacity: 1, duration: 0.45, yoyo: true, repeat: 4, ease: "sine.inOut" }, "<")
+          // si tocaron el otro poste mientras salía, arranca el combo justo cuando aparece
+          .call(() => {
+            if (pendingDuo === 1 - i) runDuo(1 - i);
+          }, null, "appear+=0.05")
           // 3. vuelve a parpadear y la figura desaparece entre los parpadeos
+          .addLabel("leave")
           .to([...light, figure], { keyframes: { opacity: [0.1, 1, 0, 0.9, 0] }, duration: 0.8, ease: "none" })
           .set(figure, { opacity: 0 })
           .addLabel("gone")
@@ -303,7 +316,9 @@ mm.add(
       };
 
       /* ----- Easter egg secundario: la Muerte le teme a la Muerte ----- */
-      const runDuo = () => {
+      // newIdx = poste recién tocado; la parca del otro poste ya está a la vista y se queda
+      const runDuo = (newIdx) => {
+        pendingDuo = null;
         hauntTls.forEach((t) => t?.kill());
         const parts = lamps.map((lamp, i) => ({
           lamp,
@@ -322,8 +337,13 @@ mm.add(
         const dropper = Math.round(random(0, 1)); // la que tira la guadaña del susto
         const RUN = 680;
 
-        const reset = () => parts.forEach((p) => {
-          gsap.set(p.fig, { opacity: 0, x: 0, y: 0, rotation: 0, transformOrigin: "50% 100%" });
+        const fresh = parts[newIdx];     // la que aparece ahora
+        const stay = parts[1 - newIdx];  // la que ya estaba
+
+        // keep = true: no esconde la figura (la que ya estaba sigue ahí)
+        const reset = (keep = false) => parts.forEach((p) => {
+          if (keep && p === stay) gsap.set(p.fig, { x: 0, rotation: 0, transformOrigin: "50% 100%" });
+          else gsap.set(p.fig, { opacity: 0, x: 0, y: 0, rotation: 0, transformOrigin: "50% 100%" });
           // origen en el centro del bastón (18,-53); la caja de la guadaña empieza en (-30,-117)
           gsap.set(p.scythe, { rotation: 0, x: 0, y: 0, opacity: 1, transformOrigin: "48px 64px" });
           gsap.set(p.armsUp, { opacity: 0 });
@@ -332,9 +352,17 @@ mm.add(
           gsap.set([p.alarm, ...p.sweat], { opacity: 0 });
           p.lamp.querySelectorAll(".scythe-dropped").forEach((n) => n.remove());
         });
-        reset();
+        reset(true);
         gsap.set(all("light"), { opacity: 1 });
-        gsap.set(all("puffs"), { opacity: 0 });
+        gsap.set(fresh.puffs, { opacity: 0 });
+        // el humo de la que ya estaba sigue desde donde iba (sin reiniciarse)
+        gsap.to(stay.puffs, {
+          opacity: () => random(0.35, 0.65),
+          scale: () => random(1.1, 1.7),
+          x: (k, el) => puffX(el) * 0.7,
+          y: () => random(-10, -2),
+          duration: 1.8, ease: "sine.out",
+        });
 
         const figs = parts.map((p) => p.fig);
         duoTl = gsap.timeline({
@@ -343,17 +371,18 @@ mm.add(
             nextHaunt = performance.now() + random(30000, 50000);
           },
         })
-          // 1. fallan los dos postes y aparecen las dos entre el humo
-          .to(all("light"), { keyframes: { opacity: [1, 0.2, 1, 0.05, 0] }, duration: 0.7, ease: "none" })
+          // 1. la que ya estaba se queda quieta; solo falla el otro poste y aparece la segunda
+          .to(stay.fig, { y: 0, duration: 0.4, ease: "sine.out" }, 0)
+          .to(fresh.light, { keyframes: { opacity: [1, 0.2, 1, 0.05, 0] }, duration: 0.7, ease: "none" }, 0)
           .addLabel("dark")
-          .add(fogIn(all("puffs")), "dark")
-          .set(figs, { opacity: 1 }, "dark+=0.4")
-          .set(all("light"), { opacity: 1 }, "<")
-          .fromTo(figs, { y: 10 }, { y: 0, duration: 1, ease: "sine.out" }, "<")
-          // 2. se miran...
+          .add(fogIn(fresh.puffs), "dark")
+          .set(fresh.fig, { opacity: 1 }, "dark+=0.4")
+          .set(fresh.light, { opacity: 1 }, "<")
+          .fromTo(fresh.fig, { y: 10 }, { y: 0, duration: 1, ease: "sine.out" }, "<")
+          // 2. la primera voltea a ver qué pasa con el otro poste... y luego se miran las dos
           // (posiciones fijas desde "dark": el humo dura más y no debe empujar la escena)
-          .to(parts[0].eyes, { x: 2.5, duration: 0.25 }, "dark+=1.9")
-          .to(parts[1].eyes, { x: -2.5, duration: 0.25 }, "<")
+          .to(stay.eyes, { x: newIdx === 1 ? 2.5 : -2.5, duration: 0.2 }, "dark-=0.3")
+          .to(fresh.eyes, { x: newIdx === 1 ? -2.5 : 2.5, duration: 0.25 }, "dark+=1.9")
           // 3. ¡SUSTO!
           .addLabel("scare", "dark+=2.65")
           .fromTo(all("alarm"), { opacity: 0, scale: 0, transformOrigin: "50% 100%" },
