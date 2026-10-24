@@ -38,6 +38,7 @@ const subFloor = $(".sub-floor");
 const subBtns = toArray(".sub-btn");
 let subShown = false;
 let parkAnim = null; // timeline del parqueadero (para repetirla desde el submenú)
+let launchUfo = null; // easter egg del platillo volador (también se invoca tocando la luna)
 
 function toggleSubFloor(on) {
   if (on === subShown) return;
@@ -206,6 +207,45 @@ mm.add(
           .to(tail, { scaleX: 1, duration: flight * 0.6, ease: "power2.out" }, 0)
           .to(el, { opacity: 0, duration: 0.3 }, flight - 0.3);
       };
+      /* ----- Easter egg: platillo volador ----- */
+      const ufo = $("#ufo");
+      const ufoBody = $("#ufo-body");
+      const ufoBeam = $("#ufo .ufo-beam");
+      const ufoLights = toArray("#ufo .ufo-light");
+      let ufoFlight = null;
+      let nextUfo = performance.now() + random(8000, 12000); // primera visita
+
+      launchUfo = () => {
+        if (ufoFlight?.isActive()) return;
+        const y = random(210, 300);
+        const hoverX = random(960, 1110); // cielo libre entre el letrero "24H" y el borde
+        ufoFlight = gsap.timeline({ onComplete: () => (nextUfo = performance.now() + random(25000, 45000)) })
+          .set(ufo, { x: 1450, y, scale: 0.7, opacity: 1 })
+          .set(ufoBody, { rotation: 0, transformOrigin: "50% 50%" })
+          // entra por la derecha tambaleándose
+          .to(ufo, { x: hoverX, scale: 1, duration: 2.2, ease: "power2.out" })
+          .to(ufoBody, { keyframes: { rotation: [10, -6, 4, 0] }, duration: 2.2, ease: "none" }, 0)
+          .to(ufo, { y: "+=12", duration: 0.55, yoyo: true, repeat: 5, ease: "sine.inOut" }, 0)
+          // flota y parpadea el rayo
+          .to(ufoBeam, { opacity: 0.35, duration: 0.12, yoyo: true, repeat: 7, ease: "none" }, 2.2)
+          // cruza por detrás del letrero...
+          .to(ufo, { x: 560, y: 95, duration: 2.2, ease: "power1.inOut" }, 3.4)
+          .to(ufoBody, { rotation: -8, duration: 0.6, yoyo: true, repeat: 1, ease: "sine.inOut" }, 3.4)
+          // ...y se pierde en el espacio
+          .to(ufo, { x: 720, y: -340, scale: 0.05, duration: 0.7, ease: "power3.in" }, 5.6)
+          .set(ufo, { opacity: 0 })
+          // luces de colores alternando todo el viaje
+          .fromTo(ufoLights, { opacity: 1 }, {
+            opacity: 0.2, duration: 0.15, yoyo: true, repeat: 41, ease: "none", stagger: { each: 0.08 },
+          }, 0);
+      };
+
+      // Revisa cada segundo si ya toca otra visita (solo corre mientras se ve la fachada)
+      addLoop("f0", gsap.to({}, {
+        duration: 1, repeat: -1,
+        onRepeat: () => performance.now() > nextUfo && launchUfo(),
+      }));
+
       gsap.delayedCall(2.2, shootingStar);
       addLoop("f0", gsap.to({}, {
         duration: 1.4, repeat: -1,
@@ -479,6 +519,8 @@ function goTo(n) {
 }
 
 document.addEventListener("click", (e) => {
+  if (e.target.closest("#moon")) return launchUfo?.();
+
   const area = e.target.closest(".sub-btn");
   if (area) return goArea(+area.dataset.area);
 

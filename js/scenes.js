@@ -46,8 +46,21 @@
           <circle r="2.8" fill="#fff" filter="url(#f-glow)"/>
         </g>
       </g>`)}</g>
-      <circle cx="1030" cy="110" r="46" fill="#fff4d6" filter="url(#f-glow)"/>
-      <circle cx="1050" cy="96" r="42" fill="#120a2b"/>
+      <!-- Easter egg: platillo volador (origen en el centro del platillo). Va antes del edificio para pasar por detrás -->
+      <g id="ufo" opacity="0">
+        <g id="ufo-body">
+          <path class="ufo-beam" d="M-10 6 L10 6 L30 80 L-30 80Z" fill="#7cffb2" opacity="0"/>
+          <ellipse cx="0" cy="-7" rx="14" ry="12" fill="#9ff0ff" opacity=".85"/>
+          <ellipse cx="-4" cy="-11" rx="4" ry="3" fill="#fff" opacity=".7"/>
+          <ellipse cx="0" cy="1" rx="34" ry="9" fill="#9aa6c2"/>
+          <ellipse cx="0" cy="-2" rx="34" ry="5" fill="#e3e8f7"/>
+          ${[-22, -11, 0, 11, 22].map((x, i) => `<circle class="ufo-light" cx="${x}" cy="3" r="2.6" fill="${i % 2 ? "#ff3cac" : "#7cffb2"}" filter="url(#f-glow)"/>`).join("")}
+        </g>
+      </g>
+      <g id="moon" class="clickable">
+        <circle cx="1030" cy="110" r="46" fill="#fff4d6" filter="url(#f-glow)"/>
+        <circle cx="1050" cy="96" r="42" fill="#120a2b"/>
+      </g>
       ${skyline}
 
       <g id="building">
