@@ -1,0 +1,242 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Motel Luna · Tour Virtual</title>
+  <meta name="description" content="Recorrido interactivo por Motel Luna: fachada, parqueadero, lobby y habitaciones." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Monoton&family=Poppins:wght@400;600;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+
+  <!-- Definiciones SVG compartidas (gradientes, patrones, filtros, símbolos) -->
+  <svg class="svg-defs" aria-hidden="true" width="0" height="0">
+    <defs>
+      <linearGradient id="g-sky" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#0b0620" />
+        <stop offset=".7" stop-color="#2a0f4a" />
+        <stop offset="1" stop-color="#4a1a5e" />
+      </linearGradient>
+      <linearGradient id="g-water" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#9ff0ff" />
+        <stop offset="1" stop-color="#1fa6d6" />
+      </linearGradient>
+      <radialGradient id="g-lamp">
+        <stop offset="0" stop-color="#ffcf5c" stop-opacity=".55" />
+        <stop offset="1" stop-color="#ffcf5c" stop-opacity="0" />
+      </radialGradient>
+      <pattern id="p-tiles" width="40" height="40" patternUnits="userSpaceOnUse">
+        <rect width="40" height="40" fill="#252a40" />
+        <path d="M40 0H0V40" fill="none" stroke="#343b58" stroke-width="2" />
+      </pattern>
+      <pattern id="p-checker" width="80" height="80" patternUnits="userSpaceOnUse">
+        <rect width="80" height="80" fill="#1d1533" />
+        <rect width="40" height="40" fill="#271c44" />
+        <rect x="40" y="40" width="40" height="40" fill="#271c44" />
+      </pattern>
+      <pattern id="p-wood" width="160" height="30" patternUnits="userSpaceOnUse">
+        <rect width="160" height="30" fill="#2a1d2c" />
+        <path d="M0 29.5H160M100 0V30" stroke="#1d141f" stroke-width="2" />
+      </pattern>
+      <pattern id="p-curtain" width="24" height="10" patternUnits="userSpaceOnUse">
+        <rect width="24" height="10" fill="#5b1d6e" />
+        <rect width="12" height="10" fill="#7a2a91" />
+      </pattern>
+      <filter id="f-glow" x="-50%" y="-50%" width="200%" height="200%">
+        <feGaussianBlur stdDeviation="4" result="b" />
+        <feMerge><feMergeNode in="b" /><feMergeNode in="SourceGraphic" /></feMerge>
+      </filter>
+      <filter id="f-blur" x="-50%" y="-50%" width="200%" height="200%">
+        <feGaussianBlur stdDeviation="8" />
+      </filter>
+
+      <symbol id="car" viewBox="0 0 220 90">
+        <path d="M10 60Q10 45 30 42L60 40 85 15Q90 10 100 10H150Q160 10 168 18L190 40Q210 42 212 58V68H10Z" fill="currentColor" />
+        <path d="M92 20H150L176 40H72Z" fill="#bff3ff" opacity=".75" />
+        <path d="M124 20V40" stroke="currentColor" stroke-width="4" />
+        <rect x="200" y="48" width="12" height="7" rx="2" fill="#fff3a8" />
+        <rect x="8" y="48" width="8" height="7" rx="2" fill="#ff4d6d" />
+        <circle cx="55" cy="68" r="15" fill="#111" stroke="#555" stroke-width="5" />
+        <circle cx="170" cy="68" r="15" fill="#111" stroke="#555" stroke-width="5" />
+      </symbol>
+      <symbol id="moto" viewBox="0 0 120 72">
+        <circle cx="25" cy="52" r="16" fill="none" stroke="#111" stroke-width="7" />
+        <circle cx="95" cy="52" r="16" fill="none" stroke="#111" stroke-width="7" />
+        <path d="M25 52 50 30H80L95 52" fill="none" stroke="currentColor" stroke-width="8" stroke-linejoin="round" />
+        <ellipse cx="64" cy="29" rx="15" ry="8" fill="currentColor" />
+        <rect x="38" y="20" width="26" height="8" rx="4" fill="#222" />
+        <path d="M80 30 88 12" stroke="#ccc" stroke-width="4" stroke-linecap="round" />
+        <circle cx="92" cy="20" r="4" fill="#fff3a8" />
+      </symbol>
+    </defs>
+  </svg>
+
+  <header class="topbar">
+    <a class="logo" href="#fachada">Motel <span>Luna</span></a>
+    <span class="topbar-tag">Tour virtual</span>
+    <div class="progress"><i id="progress"></i></div>
+  </header>
+
+  <!-- Dock: en escritorio cada bloque va por su lado; en móvil se unen en una sola barra -->
+  <div class="dock">
+  <!-- Controles del tour -->
+  <div class="tour-bar" role="group" aria-label="Controles del tour">
+    <button id="tour-play" class="tour-btn tour-play" aria-pressed="false">
+      <span class="ico">▶</span><span class="txt">Auto tour</span>
+    </button>
+    <div class="tour-speed" role="group" aria-label="Velocidad">
+      <button class="speed-btn is-on" data-speed="1" aria-pressed="true">x1</button>
+      <button class="speed-btn" data-speed="1.5" aria-pressed="false">x1.5</button>
+      <button class="speed-btn" data-speed="2" aria-pressed="false">x2</button>
+      <button class="speed-btn" data-speed="3" aria-pressed="false">x3</button>
+    </div>
+    <button id="speed-cycle" class="tour-btn speed-cycle" aria-label="Cambiar velocidad">x1</button>
+    <button id="tour-hold" class="tour-btn tour-hold" aria-label="Mantén presionado para avanzar">
+      <span class="ico ico-ff">▶▶</span><span class="txt">Avanzar</span>
+    </button>
+  </div>
+
+  <!-- Panel del ascensor -->
+  <nav class="lift-panel" aria-label="Ascensor">
+    <div class="lift-display"><span id="lift-arrow">•</span><span id="lift-num">F</span></div>
+    <button class="lift-btn" data-go="4" aria-label="Ir al piso 4: Suites">4</button>
+    <button class="lift-btn" data-go="3" aria-label="Ir al piso 3: Habitación Especial">3</button>
+    <button class="lift-btn" data-go="2" aria-label="Ir al piso 2: Habitaciones Sencillas">2</button>
+    <button class="lift-btn" data-go="1" aria-label="Ir al piso 1: Lobby y parqueadero">1</button>
+    <button class="lift-btn is-active" data-go="0" aria-label="Ir a la fachada">F</button>
+  </nav>
+
+  </div>
+
+  <!-- Puertas del ascensor (navegación con botones) -->
+  <div id="lift-overlay" aria-hidden="true">
+    <div class="ov-door l"></div>
+    <div class="ov-door r"></div>
+    <div class="ov-display"><span class="ov-arrow">▲</span><span class="ov-num">1</span></div>
+    <div class="ov-ding">¡Ding!</div>
+  </div>
+
+  <main>
+    <!-- FACHADA -->
+    <section id="fachada" class="scene">
+      <svg class="art" id="svg-fachada" viewBox="0 0 1200 700" preserveAspectRatio="xMidYMax slice" role="img" aria-label="Fachada del motel de noche"></svg>
+      <div class="facade-copy">
+        <p class="kicker">Bienvenidos a</p>
+        <h1>Motel <span>Luna</span></h1>
+        <p class="lead">Desliza para entrar o usa el ascensor de la derecha.</p>
+      </div>
+      <div id="scroll-hint">Desliza <span>↓</span></div>
+      <div id="facade-fade"></div>
+    </section>
+
+    <!-- PISO 1: recorrido horizontal -->
+    <section id="piso1" class="h-wrap">
+      <div class="h-track">
+        <article class="panel panel-parking">
+          <header class="panel-head">
+            <span class="badge" style="--c:#ffcf5c">Piso 1</span>
+            <h2>Parqueadero</h2>
+            <p>Garajes privados con cortina para carros y zona exclusiva para motos.</p>
+          </header>
+          <svg class="art" id="svg-parking" viewBox="0 0 1200 700" role="img" aria-label="Parqueadero"></svg>
+        </article>
+        <article class="panel panel-lobby">
+          <header class="panel-head">
+            <span class="badge" style="--c:#ffcf5c">Piso 1</span>
+            <h2>Lobby</h2>
+            <p>Recepción discreta y atención 24 horas. <em>Toca la campana.</em></p>
+          </header>
+          <svg class="art" id="svg-lobby" viewBox="0 0 1200 700" role="img" aria-label="Lobby y recepción"></svg>
+        </article>
+        <article class="panel panel-sala">
+          <header class="panel-head">
+            <span class="badge" style="--c:#ffcf5c">Piso 1</span>
+            <h2>Sala de espera</h2>
+            <p>Un espacio cómodo mientras preparamos tu habitación.</p>
+          </header>
+          <svg class="art" id="svg-sala" viewBox="0 0 1200 700" role="img" aria-label="Sala de espera"></svg>
+        </article>
+      </div>
+    </section>
+
+    <section class="ride" data-from="1" data-to="2"></section>
+
+    <!-- PISO 2 -->
+    <section id="piso2" class="floor" style="--c:#2bd2ff">
+      <header class="floor-head">
+        <span class="badge">Piso 2</span>
+        <h2>Habitaciones Sencillas</h2>
+        <p>Todo lo esencial para una noche perfecta.</p>
+      </header>
+      <div class="floor-body">
+        <svg class="art room" id="svg-room2" viewBox="0 0 1200 700" role="img" aria-label="Habitación sencilla"></svg>
+        <ul class="amenities">
+          <li><button class="chip" data-target="#f2-bed"><b>🛏️</b> Cama doble</button></li>
+          <li><button class="chip" data-target="#f2-bath"><b>🚿</b> Baño con ducha</button></li>
+          <li><button class="chip" data-target="#f2-minibar"><b>🍾</b> Minibar</button></li>
+          <li><button class="chip" data-target="#f2-sound"><b>🔊</b> Sonido</button></li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="ride" data-from="2" data-to="3"></section>
+
+    <!-- PISO 3 -->
+    <section id="piso3" class="floor" style="--c:#ff3cac">
+      <header class="floor-head">
+        <span class="badge">Piso 3</span>
+        <h2>Habitación Especial</h2>
+        <p>Bañera para dos, velas y pétalos.</p>
+      </header>
+      <div class="floor-body">
+        <svg class="art room" id="svg-room3" viewBox="0 0 1200 700" role="img" aria-label="Habitación especial"></svg>
+        <ul class="amenities">
+          <li><button class="chip" data-target="#f3-bed"><b>🛏️</b> Cama doble</button></li>
+          <li><button class="chip" data-target="#f3-bath"><b>🛁</b> Baño con bañera</button></li>
+          <li><button class="chip" data-target="#f3-minibar"><b>🍾</b> Minibar</button></li>
+          <li><button class="chip" data-target="#f3-sound"><b>🔊</b> Sonido</button></li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="ride" data-from="3" data-to="4"></section>
+
+    <!-- PISO 4 -->
+    <section id="piso4" class="floor" style="--c:#a77bff">
+      <header class="floor-head">
+        <span class="badge">Piso 4</span>
+        <h2>Suites</h2>
+        <p>La experiencia completa: jacuzzi, turco y silla tántrica.</p>
+      </header>
+      <div class="floor-body">
+        <svg class="art room" id="svg-room4" viewBox="0 0 1200 700" role="img" aria-label="Suite"></svg>
+        <ul class="amenities">
+          <li><button class="chip" data-target="#f4-bed"><b>🛏️</b> Cama doble</button></li>
+          <li><button class="chip" data-target="#f4-shower"><b>🚿</b> Baño con ducha</button></li>
+          <li><button class="chip" data-target="#f4-jacuzzi"><b>♨️</b> Jacuzzi</button></li>
+          <li><button class="chip" data-target="#f4-turco"><b>💨</b> Turco</button></li>
+          <li><button class="chip" data-target="#f4-chair"><b>💺</b> Silla tántrica</button></li>
+          <li><button class="chip" data-target="#f4-minibar"><b>🍾</b> Minibar</button></li>
+          <li><button class="chip" data-target="#f4-sound"><b>🔊</b> Sonido</button></li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- FIN -->
+    <section id="fin" class="end">
+      <p class="kicker fin-item">Fin del recorrido</p>
+      <h2 class="fin-item">¿Listos para su noche en <span>Luna</span>?</h2>
+      <p class="fin-item">Atención 24 horas · Entrada discreta · Garaje privado</p>
+      <button class="cta fin-item" data-go="0">🛗 Bajar a la fachada</button>
+    </section>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/gsap.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/ScrollTrigger.min.js"></script>
+  <script src="js/scenes.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>
