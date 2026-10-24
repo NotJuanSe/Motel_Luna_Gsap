@@ -53,14 +53,17 @@
         <feGaussianBlur stdDeviation="8" />
       </filter>
 
+      <!-- Carro mirando a la derecha: capó largo adelante (derecha), luces delanteras a la derecha -->
       <symbol id="car" viewBox="0 0 220 90">
-        <path d="M10 60Q10 45 30 42L60 40 85 15Q90 10 100 10H150Q160 10 168 18L190 40Q210 42 212 58V68H10Z" fill="currentColor" />
-        <path d="M92 20H150L176 40H72Z" fill="#bff3ff" opacity=".75" />
-        <path d="M124 20V40" stroke="currentColor" stroke-width="4" />
+        <g transform="translate(222 0) scale(-1 1)">
+          <path d="M10 60Q10 45 30 42L60 40 85 15Q90 10 100 10H150Q160 10 168 18L190 40Q210 42 212 58V68H10Z" fill="currentColor" />
+          <path d="M92 20H150L176 40H72Z" fill="#bff3ff" opacity=".75" />
+          <path d="M124 20V40" stroke="currentColor" stroke-width="4" />
+          <circle cx="55" cy="68" r="15" fill="#111" stroke="#555" stroke-width="5" />
+          <circle cx="170" cy="68" r="15" fill="#111" stroke="#555" stroke-width="5" />
+        </g>
         <rect x="200" y="48" width="12" height="7" rx="2" fill="#fff3a8" />
-        <rect x="8" y="48" width="8" height="7" rx="2" fill="#ff4d6d" />
-        <circle cx="55" cy="68" r="15" fill="#111" stroke="#555" stroke-width="5" />
-        <circle cx="170" cy="68" r="15" fill="#111" stroke="#555" stroke-width="5" />
+        <rect x="10" y="48" width="8" height="7" rx="2" fill="#ff4d6d" />
       </symbol>
       <symbol id="moto" viewBox="0 0 120 72">
         <circle cx="25" cy="52" r="16" fill="none" stroke="#111" stroke-width="7" />
