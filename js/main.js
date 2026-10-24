@@ -178,6 +178,40 @@ mm.add(
         onRepeat: () => gsap.to(random(wins), { opacity: random([0.15, 0.6, 1]), duration: 0.25 }),
       }));
 
+      // Estrellas fugaces: cada ~1.4 s hay una probabilidad de que cruce una
+      const shoots = toArray("#svg-fachada .shoot");
+      const shootingStar = () => {
+        const el = shoots.find((s) => !gsap.isTweening(s));
+        if (!el) return;
+        const angle = random(18, 38);            // inclinación hacia abajo-izquierda
+        const rad = (angle * Math.PI) / 180;
+        const dist = random(380, 700);
+        const sx = random(150, 1500);
+        const sy = random(-250, 200);
+        const tail = el.querySelector(".tail");
+        const flight = random(0.7, 1.1);
+        // la rotación va como atributo SVG (gira sobre la cabeza en 0,0);
+        // GSAP solo mueve el grupo exterior y estira la cola
+        el.querySelector(".shoot-rot").setAttribute("transform", `rotate(${-angle})`);
+        gsap.timeline()
+          .set(el, { x: sx, y: sy, opacity: 0 })
+          .set(tail, { scaleX: 0.15, transformOrigin: "0% 50%" })
+          .to(el, { opacity: 1, duration: 0.15 })
+          .to(el, {
+            x: sx - Math.cos(rad) * dist,
+            y: sy + Math.sin(rad) * dist,
+            duration: flight,
+            ease: "power1.in",
+          }, 0)
+          .to(tail, { scaleX: 1, duration: flight * 0.6, ease: "power2.out" }, 0)
+          .to(el, { opacity: 0, duration: 0.3 }, flight - 0.3);
+      };
+      gsap.delayedCall(2.2, shootingStar);
+      addLoop("f0", gsap.to({}, {
+        duration: 1.4, repeat: -1,
+        onRepeat: () => Math.random() < 0.45 && shootingStar(),
+      }));
+
       addLoop("f0", gsap.timeline({ repeat: -1, repeatDelay: 3 })
         .to("#sign-text", { opacity: 0.3, duration: 0.05, repeat: 3, yoyo: true }));
 

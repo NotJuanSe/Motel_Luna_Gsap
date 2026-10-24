@@ -39,6 +39,13 @@
       <!-- El fondo se extiende más allá del viewBox para llenar pantallas muy anchas o muy altas -->
       <rect x="-1500" y="-1300" width="4200" height="2000" fill="url(#g-sky)"/>
       <g id="stars">${times(220, () => `<circle class="star" cx="${rnd(-1400, 2600).toFixed(0)}" cy="${rnd(-600, 460).toFixed(0)}" r="${rnd(0.6, 2.2).toFixed(1)}" fill="#fff"/>`)}</g>
+      <!-- Estrellas fugaces: pool reutilizable (la cabeza está en el origen 0,0 y la cola hacia +x) -->
+      <g id="shooting">${times(3, () => `<g class="shoot" opacity="0">
+        <g class="shoot-rot">
+          <rect class="tail" x="0" y="-1.3" width="170" height="2.6" rx="1.3" fill="url(#g-tail)"/>
+          <circle r="2.8" fill="#fff" filter="url(#f-glow)"/>
+        </g>
+      </g>`)}</g>
       <circle cx="1030" cy="110" r="46" fill="#fff4d6" filter="url(#f-glow)"/>
       <circle cx="1050" cy="96" r="42" fill="#120a2b"/>
       ${skyline}
